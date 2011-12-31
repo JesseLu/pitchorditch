@@ -9,25 +9,37 @@ class MainPage(webapp.RequestHandler):
         self.response.out.write("""
           <html>
             <body>
-              <form action="/sign" method="post">
-                <div><textarea name="content" rows="3" cols="60"></textarea></div>
-                <div><input type="submit" value="Sign Guestbook"></div>
+              <form action="/redirect" method="post">
+                <div><input type="field" name="deckurl"></div>
+                <div><input type="submit" value="Submit"></div>
               </form>
             </body>
           </html>""")
 
 
-class Guestbook(webapp.RequestHandler):
+class Redirect(webapp.RequestHandler):
     def post(self):
         self.response.out.write('<html><body>You wrote:<pre>')
-        self.response.out.write(cgi.escape(self.request.get('content')))
+        self.response.out.write(cgi.escape(self.request.get('deckurl')))
         self.response.out.write(cgi.escape(self.request.url))
         self.response.out.write('</pre></body></html>')
+        str = cgi.escape(self.request.get('deckurl')).split('?id=')
+
+        self.redirect('/b?id=' + str[1])
+        # self.redirect('/id')
+
+class Submission(webapp.RequestHandler):
+    def get(self):
+        self.response.out.write('<html><body>You wrote:<pre>')
+        self.response.out.write(cgi.escape(self.request.url))
+        self.response.out.write('</pre></body></html>')
+
         
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
-                                      ('/sign', Guestbook)],
+                                      ('/redirect', Redirect),
+                                      ('/b', Submission)],
                                      debug=True)
 
 def main():
